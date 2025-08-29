@@ -3,43 +3,91 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
 
-type User = { email: string }
+type User = {
+  id: number
+  email: string
+  name: string
+  githubUsername: string
+  avatarUrl: string
+}
+
 type AuthContextType = {
   user: User | null
+  loading: boolean
   signin: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string) => Promise<void>
   signout: () => void
+  loginWithGitHub: () => void
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
+const API_BASE_URL = "http://localhost:8080"
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const raw = localStorage.getItem("demo-user")
-    if (raw) setUser(JSON.parse(raw))
+    // Only run on client side to avoid hydration issues
+    if (typeof window !== 'undefined') {
+      checkAuthStatus()
+    } else {
+      setLoading(false)
+    }
   }, [])
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/user`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.authenticated && data.user) {
+          setUser(data.user)
+        }
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loginWithGitHub = () => {
+    window.location.href = `${API_BASE_URL}/oauth2/authorization/github`
+  }
 
   const value = useMemo<AuthContextType>(
     () => ({
       user,
-      signin: async (email) => {
-        const next = { email }
-        localStorage.setItem("demo-user", JSON.stringify(next))
-        setUser(next)
+      loading,
+      signin: async () => {
+        loginWithGitHub()
       },
-      signup: async (email) => {
-        const next = { email }
-        localStorage.setItem("demo-user", JSON.stringify(next))
-        setUser(next)
+      signup: async () => {
+        loginWithGitHub()
       },
-      signout: () => {
-        localStorage.removeItem("demo-user")
-        setUser(null)
+      signout: async () => {
+        try {
+          await fetch(`${API_BASE_URL}/api/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+          })
+        } catch (error) {
+          console.error('Logout failed:', error)
+        } finally {
+          setUser(null)
+          window.location.href = '/'
+        }
       },
+      loginWithGitHub,
     }),
-    [user],
+    [user, loading],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
