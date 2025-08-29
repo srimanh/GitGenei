@@ -58,7 +58,7 @@ Last-minute code submissions are a nightmare 😨 — messy repos, broken branch
 
 ---
 
-## 🙌 Team & Credits
+## 🙌 Team & Credits 
 
 Made with ❤️ at Recurzive V2 \
 Project by: Team CodeFox  
