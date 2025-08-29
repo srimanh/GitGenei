@@ -60,7 +60,7 @@ Last-minute code submissions are a nightmare 😨 — messy repos, broken branch
 
 ## 🙌 Team & Credits
 
-Made with ❤️ at Re \
+Made with ❤️ at Recurzive V2 \
 Project by: Team CodeFox  
 Special thanks to open source & the developer community! 🌟
 
