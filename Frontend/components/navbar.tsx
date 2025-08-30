@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
+import { motion } from "framer-motion"
+import { Zap } from "lucide-react"
 
 const links = [
   { href: "/product", label: "Product" },
@@ -37,14 +38,23 @@ export function Navbar() {
     >
       <nav className="flex items-center justify-between px-4 py-2">
         <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/gitgenei-logo.svg"
-            alt="GitGenei Logo"
-            width={24}
-            height={24}
-            className="shadow-[0_0_20px_2px_rgba(34,211,238,0.35)]"
-          />
-          <span className="text-sm font-medium text-white/90">GitGenei</span>
+          <motion.div
+            className="flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <div className="relative">
+              <Zap className="w-6 h-6 text-cyan-400" />
+              <motion.div
+                className="absolute inset-0 bg-cyan-400/20 rounded-full blur-lg"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            </div>
+            <span className="text-sm font-medium bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              GitGenei
+            </span>
+          </motion.div>
         </Link>
 
         <ul className="hidden md:flex items-center gap-2">
@@ -69,7 +79,7 @@ export function Navbar() {
               Sign in
             </Button>
           </Link>
-          <Link href="/signup">
+          <Link href="/signin">
             <Button
               className="bg-gradient-to-r from-[#22d3ee] to-[#60a5fa] text-black font-semibold hover:from-[#22d3ee] hover:to-[#60a5fa]/90"
               aria-label="Get started for free"

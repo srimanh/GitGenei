@@ -61,7 +61,7 @@ export function Hero() {
           transition={{ duration: 0.9, delay: 0.3 }}
           className="mt-7 flex items-center justify-center gap-3"
         >
-          <Link href="/signup">
+          <Link href="/signin">
             <Button className="px-6 py-6 text-base font-semibold bg-gradient-to-r from-[#22d3ee] to-[#60a5fa] text-black hover:from-[#22d3ee] hover:to-[#60a5fa]/90">
               Start free — Deploy now
             </Button>
