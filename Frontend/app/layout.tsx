@@ -23,8 +23,8 @@ export default function RootLayout({
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <AuthProvider>
           <Suspense fallback={null}>{children}</Suspense>
+          <Analytics />
         </AuthProvider>
-        <Analytics />
       </body>
     </html>
   )
