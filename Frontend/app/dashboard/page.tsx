@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
+import { ProjectUploader } from "@/components/upload/project-uploader"
 import {
   Upload,
   Github,
@@ -72,6 +73,12 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("all")
   const [showConfetti, setShowConfetti] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Fix hydration error by ensuring client-side rendering
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   // Mock data for demo
   const [deploymentHistory] = useState<DeploymentHistory[]>([
@@ -195,10 +202,11 @@ export default function DashboardPage() {
     return matchesSearch && matchesFilter
   })
 
-  if (loading) {
+  // Fix hydration error by ensuring client-side rendering
+  if (!mounted || loading) {
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center">
-        <motion.div 
+        <motion.div
           className="flex flex-col items-center gap-4"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -388,77 +396,27 @@ export default function DashboardPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
             >
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-                <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                  <Upload className="w-5 h-5 text-cyan-400" />
-                  Deploy New Project
-                </h2>
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+                    <Upload className="w-5 h-5 text-cyan-400" />
+                    Upload Your Whole Project
+                  </h2>
+                  <p className="text-white/70 text-sm">
+                    Drop your entire project (up to 5 GB) and let AI analyze, organize, and push to GitHub automatically
+                  </p>
+                </div>
 
-                <motion.div
-                  className={`relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-500 ${
-                    isDragging
-                      ? "border-cyan-400 bg-cyan-400/10"
-                      : "border-white/20 hover:border-cyan-400/50 bg-white/5"
-                  } p-12 text-center cursor-pointer group`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <motion.div
-                    className="flex flex-col items-center gap-4"
-                    animate={isDragging ? { scale: 1.1 } : { scale: 1 }}
-                  >
-                    <div className="relative">
-                      <Upload className="w-12 h-12 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
-                      {isDragging && (
-                        <motion.div
-                          className="absolute inset-0 bg-cyan-400/20 rounded-full blur-lg"
-                          animate={{ scale: [1, 1.5, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        {isDragging ? "Drop your files here!" : "Drag & Drop or Click to Upload"}
-                      </h3>
-                      <p className="text-white/60 text-sm">
-                        Support for ZIP files, Git repositories, and project folders
-                      </p>
-                    </div>
-                  </motion.div>
-
-                  {showConfetti && (
-                    <motion.div
-                      className="absolute inset-0 pointer-events-none"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      {[...Array(20)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-2 h-2 bg-cyan-400 rounded-full"
-                          initial={{
-                            x: "50%",
-                            y: "50%",
-                            scale: 0,
-                          }}
-                          animate={{
-                            x: `${50 + (Math.random() - 0.5) * 200}%`,
-                            y: `${50 + (Math.random() - 0.5) * 200}%`,
-                            scale: [0, 1, 0],
-                          }}
-                          transition={{
-                            duration: 2,
-                            delay: i * 0.1,
-                          }}
-                        />
-                      ))}
-                    </motion.div>
-                  )}
-                </motion.div>
+                <ProjectUploader
+                  onUploadComplete={(result) => {
+                    console.log('Upload completed:', result)
+                    setShowConfetti(true)
+                    setTimeout(() => setShowConfetti(false), 3000)
+                  }}
+                  onAnalysisComplete={(analysis) => {
+                    console.log('Analysis completed:', analysis)
+                    // Handle analysis results - could show results modal or navigate to results page
+                  }}
+                />
               </div>
             </motion.div>
 
